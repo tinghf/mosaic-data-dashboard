@@ -26,6 +26,22 @@ DEFAULT_DATA_ROOT: Path = Path("~/MOSAIC/MOSAIC-data/processed").expanduser()
 #: `ui/sidebar.py` reads/writes this key via a `text_input` widget.
 SESSION_KEY: str = "data_root_override"
 
+#: `st.session_state` slot the country picker writes to (Phase 2, D-32).
+#:
+#: Single source of truth for the selected country across the entire app:
+#:
+#:   - The sidebar country `st.selectbox` is bound to this key (Phase 2 02-03).
+#:   - The SSA-map page click handler writes to this key on a polygon click
+#:     (Phase 2 02-04).
+#:   - Every Phase 3+ layer view (WHO, WASH, ENSO, ...) reads from this key
+#:     exclusively — no parallel state, no callback chaining.
+#:
+#: Mirrors the `SESSION_KEY` pattern above (Phase 1, D-03) for the data-root
+#: override. The string value is descriptive (per the "Claude's Discretion"
+#: clause in Phase 2 CONTEXT.md): the underlying value stored at the key is
+#: the ISO3 alpha-3 country code (e.g., ``"AGO"``), not a display name.
+COUNTRY_SESSION_KEY: str = "selected_country_iso3"
+
 #: Repo-root `config.toml` path. This file is at
 #: `src/mosaic_dashboard/config.py`, so:
 #:   parents[0] = src/mosaic_dashboard/
