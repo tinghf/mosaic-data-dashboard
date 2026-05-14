@@ -47,7 +47,12 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
   2. The user sees an SSA map rendered from `processed/shapefiles/AFRICA_ADM0` and can click a country to select it as an alternative to the dropdown.
   3. The map visibly highlights the currently selected country, and dropdown and map selections stay in sync in both directions.
   4. After picking a country, the user can switch between views without having to re-select that country.
-**Plans**: TBD
+**Plans**: 5 plans
+  - [ ] 02-01-PLAN.md — uv add deps + country_metadata.py (54 entries) + COUNTRY_SESSION_KEY constant
+  - [ ] 02-02-PLAN.md — additive geometry loaders: load_africa_geometry() + load_country_geometry(iso3) (D-38)
+  - [ ] 02-03-PLAN.md — sidebar country selectbox + app.py welcome update + startup drift warning
+  - [ ] 02-04-PLAN.md — pages/01_SSA_Map.py clickable folium choropleth with ISO3_SET click-validation guard
+  - [ ] 02-05-PLAN.md — B1-B10 acceptance walkthrough (autonomous: false)
 **UI hint**: yes
 
 ### Phase 3: Cholera & Driver Layers
@@ -113,7 +118,7 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Layer | 0/5 | Planning complete | — |
-| 2. Country Navigation & SSA Map | 0/0 | Not started | — |
+| 2. Country Navigation & SSA Map | 0/5 | Planning complete | — |
 | 3. Cholera & Driver Layers | 0/0 | Not started | — |
 | 4. Driver↔Outcome Overlays | 0/0 | Not started | — |
 | 5. Static & Geometry Layers | 0/0 | Not started | — |
