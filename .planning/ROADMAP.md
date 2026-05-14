@@ -31,7 +31,12 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
   2. The dashboard reads from a `MOSAIC-data/processed/` path the user can configure (env var, config, or settings UI) and reflects edits to those files on the next page load without a refresh button.
   3. With the network disconnected, the dashboard still loads and renders any layer whose files exist locally.
   4. If a `processed/` subdir is missing, renamed, or empty, the affected view shows an empty-state message instead of crashing the app.
-**Plans**: TBD
+**Plans**: 5 plans
+  - [ ] 01-01-PLAN.md — uv scaffold, pyproject + uv.lock, README + CLAUDE.md, config.toml, upstream column-name discovery
+  - [ ] 01-02-PLAN.md — foundation modules: errors.py, _schema.py, logging_config.py, config.py (data-root resolver)
+  - [ ] 01-03-PLAN.md — big-five loaders: WHO (3 granularities), WASH, ENSO (3 granularities), demographics (2 sources), OAG (3 granularities, bidirectional)
+  - [ ] 01-04-PLAN.md — small-five loaders: shapefiles (Path-only, no geopandas), immunity, vaccine_effectiveness, symptomatic, similarity_matrix
+  - [ ] 01-05-PLAN.md — UI shell: ui/sidebar.py, app.py, pages/00_Data_Status.py, plus A1-A10 acceptance checkpoint
 
 ### Phase 2: Country Navigation & SSA Map
 **Goal**: A modeler can pick a Sub-Saharan African country from either a dropdown or the map, and that selection drives every view in the app for the rest of the session.
@@ -107,7 +112,7 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Data Layer | 0/0 | Not started | — |
+| 1. Foundation & Data Layer | 0/5 | Planning complete | — |
 | 2. Country Navigation & SSA Map | 0/0 | Not started | — |
 | 3. Cholera & Driver Layers | 0/0 | Not started | — |
 | 4. Driver↔Outcome Overlays | 0/0 | Not started | — |

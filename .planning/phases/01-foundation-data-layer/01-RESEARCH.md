@@ -768,34 +768,39 @@ Phase 1 is greenfield (creates new code; does not rename or migrate anything). T
 | A6 | Schema-mismatch behavior of `@st.cache_data` (exceptions are NOT cached, retried on next call) is stable in Streamlit 1.57. | §8 (P8) | LOW — verified against current docs; this has been Streamlit's behavior across multiple recent releases. |
 | A7 | Streamlit 1.57.0 + pandas 3.0.3 are mutually compatible. | §2 | LOW — both are current stable releases. `uv sync` will surface any conflict immediately. Planner can add a "verify import" smoke test in scaffolding. |
 
-## Open Questions / Decisions Deferred to Planner
+## Open Questions (RESOLVED)
 
-These are items the research could not lock without either reading actual upstream data files or running a small code experiment. The planner can resolve them during Wave 0:
+These are items the research could not lock without either reading actual upstream data files or running a small code experiment. All five were resolved during Phase 1 planning (Wave 0 / planner decisions). Resolutions are recorded inline under each item below.
 
 1. **Exact upstream column names per subdir.**
    - **What we know:** D-07 mandates `country_iso3` as the canonical join column; D-06 says loaders own renames. The data layout (subdirs, file names) is confirmed.
    - **What's unclear:** The actual column names in each upstream CSV (e.g., does WHO ship `iso3`, `iso_code`, `country_id`?).
    - **Recommendation:** Planner adds one Wave 0 task: "Read one row from each `processed/` subdir's CSV; record the exact upstream column names per dataset in a scratch doc; use that to populate the `rename(columns={...})` line in each loader." This is ~30 minutes of work and de-risks every loader implementation.
+   - **Resolution:** Resolved by Plan 01-01 Task 3 (column discovery pass) which produces `.planning/phases/01-foundation-data-layer/COLUMN_DISCOVERY.md`. Plans 03 and 04 read that document to populate each loader's `REQUIRED_COLUMNS_*` set and `rename(columns={...})` map.
 
 2. **OAG "involving country" semantics.**
    - **What we know:** OAG is flight-mobility data with daily/weekly/monthly granularity.
    - **What's unclear:** Does mobility involving country X include flights *to* X, *from* X, or both? The loader's `load_*(country)` filter shape depends on this.
    - **Recommendation:** Defer to Phase 3 (OAG view). Phase 1's `oag.py` returns the full DataFrame for a country (both directions if both are present), letting the view in Phase 3 decide presentation.
+   - **Resolution:** Resolved by Plan 01-03 Task 3 (`oag.py` implementation). Phase 1 applies a bidirectional country filter — rows are kept when the country appears as EITHER origin or destination — and Phase 3's OAG view decides directional presentation. The loader's docstring records this contract.
 
 3. **Shapefile reading library in Phase 1.**
    - **What we know:** D-11 (Data Status page) needs to enumerate shapefile presence. D-15 mentions `pages/00_Data_Status.py`. Phase 2 will render the SSA map.
    - **What's unclear:** Whether Phase 1 should already pull in `geopandas` (heavy: pulls in `fiona`, `shapely`, `pyproj` — ~50MB) just to count files, or use stdlib `Path.glob`.
    - **Recommendation:** Use `Path.glob("*_ADM0.shp")` in Phase 1. Defer geopandas to Phase 2. The `shapefiles.py` loader exposes only `available_countries()` + presence/mtime metadata in Phase 1; full geometry reads come in Phase 2.
+   - **Resolution:** Resolved by Plan 01-04 Task 1 (`shapefiles.py` implementation): `Path.glob('*_ADM0.shp')` only; no `geopandas`/`fiona`/`shapely` import in Phase 1 (grep-verified in the plan's acceptance criteria). Geopandas is deferred to Phase 2 (MAP).
 
 4. **Whether to scaffold a `tests/` directory in Phase 1.**
    - **What we know:** `nyquist_validation: false` in `.planning/config.json` — formal test framework is not required.
    - **What's unclear:** Whether the planner wants light pytest smoke tests (e.g., "load each subdir's loader, assert returned shape is DataFrame") for confidence.
    - **Recommendation:** Planner's call. If yes, add `pytest>=8.0` under `[dependency-groups.dev]` in pyproject.toml (uv supports dependency groups natively) and one `tests/smoke_test.py`. If no, rely on the manual A1–A10 acceptance checks in §7.
+   - **Resolution:** Resolved by planner decision: NO `tests/` directory in Phase 1. `nyquist_validation: false` makes it optional, and the A1–A10 acceptance pass-off in Plan 01-05 (plus the per-task automated `uv run python -c "..."` verify commands in Plans 03/04) covers verification needs without adding a pytest dependency. Phase 5+ may revisit if dtype/range validation grows.
 
 5. **CLAUDE.md authoring in Phase 1 vs later.**
    - **What we know:** No CLAUDE.md exists. Project conventions (ISO3, uv-only, pages/ pattern) will be set in Phase 1.
    - **What's unclear:** Whether to author CLAUDE.md now (helps subsequent agents) or wait until Phase 7 polish.
    - **Recommendation:** Author a minimal CLAUDE.md in Phase 1 with: (a) the launch one-liner, (b) "data is read-only at `~/MOSAIC/MOSAIC-data/`", (c) "ISO3 is the canonical country id", (d) "always `uv run` — never bare python or streamlit". Roughly 30 lines, pays dividends immediately.
+   - **Resolution:** Resolved by Plan 01-01 Task 2 (minimal CLAUDE.md authored at the repo root in the scaffolding plan), capturing the launch one-liner, the read-only data-root convention, the ISO3 canonical id, and the `uv run` rule.
 
 ## Sources
 
