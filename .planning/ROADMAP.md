@@ -36,7 +36,7 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
   - [x] 01-02-PLAN.md — foundation modules: errors.py, _schema.py, logging_config.py, config.py (data-root resolver)
   - [x] 01-03-PLAN.md — big-five loaders: WHO (3 granularities), WASH, ENSO (3 granularities), demographics (2 sources), OAG (3 granularities, bidirectional)
   - [x] 01-04-PLAN.md — small-five loaders: shapefiles (Path-only, no geopandas), immunity, vaccine_effectiveness, symptomatic, similarity_matrix
-  - [ ] 01-05-PLAN.md — UI shell: ui/sidebar.py, app.py, pages/00_Data_Status.py, plus A1-A10 acceptance checkpoint
+  - [x] 01-05-PLAN.md — UI shell: ui/sidebar.py, app.py, pages/00_Data_Status.py, plus A1-A10 acceptance checkpoint
 
 ### Phase 2: Country Navigation & SSA Map
 **Goal**: A modeler can pick a Sub-Saharan African country from either a dropdown or the map, and that selection drives every view in the app for the rest of the session.
