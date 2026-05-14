@@ -100,6 +100,17 @@ _METADATA_COLUMNS: tuple[str, ...] = (
 #: when reading the shapefile.
 AFRICA_REQUIRED_COLUMNS: frozenset[str] = frozenset({"iso_a3", "name", "geometry"})
 
+#: Required columns for a per-country shape (D-39 schema check).
+#:
+#: The per-country DBFs (e.g. `AGO_ADM0.dbf`) ship with a single attribute
+#: `ADM0` -- the country's display name -- and geopandas adds the `geometry`
+#: column. The ISO3 itself is NOT inside the DBF; it lives only in the
+#: filename prefix (verified RESEARCH §3 "Per-country XXX_ADM0.dbf schema").
+#: Phase 5 LAYER-06 ("shapefiles view") is the primary consumer; Phase 2
+#: ships the loader but doesn't wire it into any page yet (per CONTEXT.md
+#: D-38 and RESEARCH §"Open Questions" Q4).
+COUNTRY_REQUIRED_COLUMNS: frozenset[str] = frozenset({"ADM0", "geometry"})
+
 
 def available_countries() -> list[str]:
     """Return sorted ISO3 codes for every country shapefile in `shapefiles/`.
@@ -360,6 +371,109 @@ def _empty_africa_geometry() -> gpd.GeoDataFrame:
             "iso_a3": pd.Series(dtype="object"),
             "name": pd.Series(dtype="object"),
         },
+        geometry=gpd.GeoSeries(dtype="geometry"),
+        crs="EPSG:4326",
+    )
+
+
+def load_country_geometry(country: str) -> gpd.GeoDataFrame:
+    """Load a single country's ADM0 GeoDataFrame from ``<ISO3>_ADM0.shp``.
+
+    Args:
+        country: ISO3 country code (e.g. ``"AGO"``). Normalized to upper
+            case via ``country.upper()`` to match the project's ISO3
+            invariant (CLAUDE.md §3) and the Phase-1 ``load_country``
+            convention.
+
+    Returns:
+        GeoDataFrame with one row whose columns are ``ADM0`` (the country's
+        display name, per the per-country DBF schema -- single field;
+        verified RESEARCH §3) and ``geometry`` (the polygon added by
+        geopandas). The ISO3 is NOT inside the DataFrame -- it lives only
+        in the input argument / filename prefix.
+
+    Empty-state contract (D-39, mirrors D-10):
+
+    - If the ``shapefiles/`` subdir is absent OR the
+      ``<ISO3>_ADM0.shp/.shx/.dbf`` set is incomplete -> return an empty
+      GeoDataFrame with ``ADM0`` and ``geometry`` columns plus the
+      ``EPSG:4326`` CRS, and emit a ``logging.warning``. Same defensive
+      ``.shp/.shx/.dbf`` guard as ``load_africa_geometry()`` (RESEARCH
+      P11).
+    - If the file is present but the DBF lacks the required attribute
+      -> raise ``SchemaMismatchError`` (D-12 strict-on-schema).
+
+    Caching: the disk read runs through ``_read_country_geometry_cached``
+    (``@st.cache_data(show_spinner=False)``, keyed on ``(path_str, mtime)``)
+    -- same pattern as ``load_africa_geometry``. Each ISO3 has its own
+    cache entry.
+
+    Consumer note: Phase 5 LAYER-06 ("shapefiles view") is the primary
+    consumer of this function; Phase 2 adds it for surface-completeness
+    (D-38) but does not wire it into any page (CONTEXT.md / RESEARCH
+    §"Open Questions" Q4).
+
+    Raises:
+        SchemaMismatchError: When ``<ISO3>_ADM0.shp`` is present but its
+            DBF lacks ``ADM0``.
+    """
+    # Defensive normalization (matches the Phase 1 load_country pattern).
+    stem = country.upper()
+    root = resolve_data_root()
+    shp_path = root / SHAPEFILES_SUBDIR / f"{stem}_ADM0.shp"
+
+    # Same .shp/.shx/.dbf defensive check as load_africa_geometry (RESEARCH
+    # P11). Pyogrio raises hard on missing .shx; we surface the empty-state
+    # contract D-39 specifies regardless.
+    required_sidecars = (".shp", ".shx", ".dbf")
+    missing_sidecars = [
+        ext for ext in required_sidecars if not shp_path.with_suffix(ext).exists()
+    ]
+    if missing_sidecars:
+        log.warning(
+            "%s_ADM0 shapefile incomplete at %s (missing %s) -- "
+            "returning empty GeoDataFrame",
+            stem,
+            shp_path.parent,
+            ", ".join(missing_sidecars),
+        )
+        return _empty_country_geometry()
+
+    mtime = shp_path.stat().st_mtime
+    return _read_country_geometry_cached(str(shp_path), mtime)
+
+
+@st.cache_data(show_spinner=False)
+def _read_country_geometry_cached(path: str, mtime: float) -> gpd.GeoDataFrame:
+    """Cached per-country shapefile read; keyed on ``(path, mtime)``.
+
+    The ``mtime`` parameter is in the signature SOLELY to participate in
+    Streamlit's cache key (mirrors ``_read_africa_geometry_cached`` and the
+    Phase 1 ``_who_*_cached`` style). When the file's mtime changes, the
+    cache misses and the file is re-read.
+
+    Uses ``Path(path).stem`` (e.g. ``"AGO_ADM0"``) in the dataset name so a
+    ``SchemaMismatchError`` clearly identifies which country's shapefile
+    triggered the failure.
+    """
+    gdf = gpd.read_file(path)
+    require_columns(
+        gdf,
+        COUNTRY_REQUIRED_COLUMNS,
+        dataset=f"shapefiles/{Path(path).stem}",
+    )
+    return gdf
+
+
+def _empty_country_geometry() -> gpd.GeoDataFrame:
+    """Canonical empty GeoDataFrame for the ``<ISO3>_ADM0`` missing-file path.
+
+    Per-country shapefiles ship in EPSG:4326 (Natural Earth convention --
+    verified RESEARCH §3); the empty frame matches that CRS so downstream
+    callers do not need a special-case branch when the file is absent.
+    """
+    return gpd.GeoDataFrame(
+        {"ADM0": pd.Series(dtype="object")},
         geometry=gpd.GeoSeries(dtype="geometry"),
         crs="EPSG:4326",
     )
