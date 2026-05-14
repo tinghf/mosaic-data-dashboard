@@ -1,0 +1,21 @@
+# Virtual environment (uv-managed)
+.venv/
+
+# Python bytecode / caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Test / type caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Streamlit secrets (never commit)
+.streamlit/secrets.toml
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
