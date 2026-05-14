@@ -1,0 +1,21 @@
+# config.toml — Mosaic Dashboard application configuration (committed to git).
+#
+# IMPORTANT: This file configures the Mosaic Dashboard application, NOT Streamlit
+# itself. Streamlit's own runtime settings live under `.streamlit/config.toml`
+# (which we do NOT ship). The two filenames are unfortunately similar — do not
+# put Streamlit options like `theme.primaryColor` or `server.port` here; they
+# will be ignored. See README.md for the data-path resolution order.
+
+[data]
+# Absolute path to your local MOSAIC-data/processed/ checkout.
+# Defaults to ~/MOSAIC/MOSAIC-data/processed/ if this value is empty or absent,
+# matching the documented teammate convention. Teammates with a different local
+# layout (e.g., WSL2 vs macOS, or a clone outside ~/MOSAIC/) should edit this
+# value in place. The sidebar override (set in the app) takes precedence over
+# this file for the current session only.
+root = "~/MOSAIC/MOSAIC-data/processed/"
+
+[logging]
+# Stdlib logging level for the dashboard's own loggers (mosaic_dashboard.*).
+# One of: DEBUG, INFO, WARNING, ERROR.
+level = "INFO"
