@@ -32,7 +32,7 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
   3. With the network disconnected, the dashboard still loads and renders any layer whose files exist locally.
   4. If a `processed/` subdir is missing, renamed, or empty, the affected view shows an empty-state message instead of crashing the app.
 **Plans**: 5 plans
-  - [ ] 01-01-PLAN.md — uv scaffold, pyproject + uv.lock, README + CLAUDE.md, config.toml, upstream column-name discovery
+  - [x] 01-01-PLAN.md — uv scaffold, pyproject + uv.lock, README + CLAUDE.md, config.toml, upstream column-name discovery
   - [ ] 01-02-PLAN.md — foundation modules: errors.py, _schema.py, logging_config.py, config.py (data-root resolver)
   - [ ] 01-03-PLAN.md — big-five loaders: WHO (3 granularities), WASH, ENSO (3 granularities), demographics (2 sources), OAG (3 granularities, bidirectional)
   - [ ] 01-04-PLAN.md — small-five loaders: shapefiles (Path-only, no geopandas), immunity, vaccine_effectiveness, symptomatic, similarity_matrix
