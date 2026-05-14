@@ -28,6 +28,13 @@ Order of top-level Streamlit calls below matters:
 No ``if __name__ == "__main__":`` guard — Streamlit imports this script
 directly on every rerun (RESEARCH.md §"Streamlit Multi-Page Conventions"),
 so top-level code runs on every rerun by design.
+
+Phase 2 additions:
+- Calls ``country_metadata.warn_if_drifted_from_shapefiles(...)`` between
+  ``configure_logging`` and ``render_sidebar`` so the expected MUS/SYC vs
+  ESH/-99 divergence surfaces as a log warning on launch (D-29).
+- Updates the welcome copy to direct users at the new SSA Map page first,
+  with Data Status as the fallback (UI-SPEC Welcome-screen copy update).
 """
 
 from __future__ import annotations
@@ -37,6 +44,7 @@ import tomllib
 import streamlit as st
 
 from mosaic_dashboard.config import CONFIG_TOML_PATH
+from mosaic_dashboard.data import country_metadata, shapefiles
 from mosaic_dashboard.logging_config import configure as configure_logging
 from mosaic_dashboard.ui.sidebar import render as render_sidebar
 
@@ -67,15 +75,25 @@ def _read_log_level() -> str:
 # 2. Configure stdlib logging (idempotent — safe to call on every rerun).
 configure_logging(_read_log_level())
 
+# 2b. Country-metadata vs. shapefiles drift check (D-29). Surfaces the
+# expected MUS/SYC vs ESH/-99 divergence as a log warning so a teammate
+# notices the drift in their terminal on first launch. Safe to call on every
+# rerun: the function does not raise, does not write state, and the
+# emit-warning-or-skip path is O(54) set ops — gating it to "once per
+# session" via a session_state flag would be unnecessary churn.
+country_metadata.warn_if_drifted_from_shapefiles(shapefiles.available_countries())
+
 # 3. Render the shared sidebar (per RESEARCH.md §5: every page, including the
 # entrypoint, calls this — keeps the data-root override widget alive across
 # navigation).
 render_sidebar()
 
 # 4. Welcome body. Phase 1's only visible surface is the Data Status page; the
-# entrypoint just orients the user.
+# entrypoint just orients the user. Phase 2 updates the second st.write line
+# to point users at the SSA Map page first (UI-SPEC Welcome-screen copy).
 st.title("Mosaic Data Dashboard")
 st.write(
     "Inspect the MOSAIC-data/processed/ datasets layer by layer. "
-    "Start with **Data Status** in the sidebar to verify your local checkout."
+    "Start with **SSA Map** in the sidebar to pick a country, or open "
+    "**Data Status** to verify your local checkout."
 )
