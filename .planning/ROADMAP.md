@@ -51,7 +51,7 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
   - [x] 02-01-PLAN.md — uv add deps + country_metadata.py (54 entries) + COUNTRY_SESSION_KEY constant
   - [x] 02-02-PLAN.md — additive geometry loaders: load_africa_geometry() + load_country_geometry(iso3) (D-38)
   - [x] 02-03-PLAN.md — sidebar country selectbox + app.py welcome update + startup drift warning
-  - [ ] 02-04-PLAN.md — pages/01_SSA_Map.py clickable folium choropleth with ISO3_SET click-validation guard
+  - [x] 02-04-PLAN.md — pages/01_SSA_Map.py clickable folium choropleth with ISO3_SET click-validation guard
   - [ ] 02-05-PLAN.md — B1-B10 acceptance walkthrough (autonomous: false)
 **UI hint**: yes
 
