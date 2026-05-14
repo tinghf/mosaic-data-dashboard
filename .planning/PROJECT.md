@@ -73,6 +73,21 @@ A MOSAIC modeler can pick a country and, in one screen, eyeball whether drivers 
 | Visual overlays for driver↔outcome relationships; formal stats deferred | v1 done bar is "team can use without explanation"; cross-corr UI is heavier scope than needed now | — Pending |
 | Fresh-read on every load (no manual refresh button) | Dataset size manageable; user explicitly chose this; caching can be invisible/internal | — Pending |
 
+## Current Milestone: v1.0 Inspector
+
+**Goal:** Ship a country-first local Streamlit dashboard that lets a MOSAIC modeler eyeball every layer in `MOSAIC-data/processed/` against cholera cases — fast enough that overlay-driven exploration replaces ad-hoc notebooks.
+
+**Target features:**
+- Country-first navigation (ADM0 select drives every panel)
+- Side-by-side time-series overlays: cholera vs. ENSO/WASH/demographics/mobility, shared x-axis
+- SSA map with country selection using the shipped shapefiles
+- One view per `processed/` subdir: WHO (annual + weekly), WASH, OAG, demographics, ENSO, shapefiles, immunity, vaccine_effectiveness, symptomatic, similarity_matrix
+- Subnational (ADM1/ADM2) drilldown where data + shapefiles allow; graceful fallback to country level
+- Local data layer: configurable `MOSAIC-data/processed/` path, fresh-read on every load, offline in the hot path
+- Sub-second pan/zoom and country switching with all SSA loaded (invisible caching allowed)
+- Reproducible setup: pinned deps + lockfile, `uv sync && streamlit run` works for any teammate
+- Usability v1 bar: any MOSAIC teammate can open it and figure it out without a walkthrough
+
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
@@ -91,4 +106,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-13 after initialization*
+*Last updated: 2026-05-13 — milestone v1.0 Inspector started*
